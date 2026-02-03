@@ -10,6 +10,25 @@
 
 ## NEWS！
 
+### 🎙️ NEW: OpenAI-Compatible TTS Server
+
+We've added an **OpenAI-compatible Text-to-Speech API server** using FastAPI! This allows you to use Higgs Audio with any application that supports OpenAI's TTS API.
+
+**Quick Start:**
+```bash
+# Using Docker Compose
+docker-compose up -d
+
+# Or using the startup script
+./start_server.sh
+```
+
+Then visit http://localhost:8000 for the web interface or http://localhost:8000/docs for API documentation.
+
+See the [OpenAI-Compatible API](#openai-compatible-api) section for complete usage details.
+
+---
+
 We are proud to launch **Higgs-Audio V2.5**, the latest iteration of Boson AI’s Audio model, designed to bring high-fidelity generation into production environments. Building on Higgs-Audio V2, this release combines improved efficiency with the stability required for real-world deployment.
 
 With V2.5, we condensed the model architecture to 1B parameters while surpassing speed and accuracy of the prior 3B model. The result is achieved through a new alignment strategy using Group Relative Policy Optimization (GRPO) on our curated Voice Bank dataset, combined with improved voice cloning and finer-grained style control.
@@ -167,7 +186,10 @@ We provide a FastAPI-based server that is **fully compatible with OpenAI's TTS A
 #### Using Docker (Recommended)
 
 ```bash
-# Build the Docker image
+# Build and run with Docker Compose (GPU)
+docker-compose up -d
+
+# Or build and run manually
 docker build -t higgs-audio-tts .
 
 # Run with GPU support
@@ -180,7 +202,10 @@ docker run -p 8000:8000 -e DEVICE=cpu higgs-audio-tts
 #### Running Directly
 
 ```bash
-# Install API dependencies
+# Quick start with provided script
+./start_server.sh
+
+# Or install and run manually
 pip install -r requirements.txt
 pip install -r api/requirements.txt
 pip install -e .
