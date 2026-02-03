@@ -280,7 +280,7 @@ async def convert_audio_format(
             )
             buffer.seek(0)
             return buffer.read()
-        except Exception as e:
+        except Exception:
             # If TorchCodec fails, fall back to FFmpeg
             pass
     
@@ -302,7 +302,7 @@ async def convert_audio_format(
         )
         
         # Convert using FFmpeg
-        result = subprocess.run(
+        subprocess.run(
             [
                 "ffmpeg",
                 "-i", wav_path,

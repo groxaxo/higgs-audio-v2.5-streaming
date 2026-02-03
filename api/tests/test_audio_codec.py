@@ -155,15 +155,15 @@ def test_environment_variable_values():
             return False
     
     test_cases = [
-        ("auto", None, False),  # auto without torchcodec
-        ("torchcodec", None, True),
-        ("ffmpeg", None, False),
-        ("TORCHCODEC", None, True),
-        ("FFmpeg", None, False),
-        ("Auto", None, False),  # auto without torchcodec
+        ("auto", False),  # auto without torchcodec
+        ("torchcodec", True),
+        ("ffmpeg", False),
+        ("TORCHCODEC", True),
+        ("FFmpeg", False),
+        ("Auto", False),  # auto without torchcodec
     ]
     
-    for env_val, _, expected in test_cases:
+    for env_val, expected in test_cases:
         with patch.dict(os.environ, {"AUDIO_CODEC": env_val}):
             with patch.dict('sys.modules', {'torchcodec': None}):
                 result = _use_torchcodec()
