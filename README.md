@@ -295,6 +295,9 @@ Set these environment variables to configure the server:
 - `DEVICE`: Device to use (`auto`, `cuda`, `cpu`, `mps`)
 - `LOG_LEVEL`: Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`)
 - `PORT`: Server port (default: `8000`)
+- `AUDIO_CODEC`: Audio encoding backend (`auto`, `torchcodec`, `ffmpeg`) - see [Audio Codec Configuration](AUDIO_CODEC_CONFIG.md)
+
+> **Note:** For audio format conversion configuration, see the [Audio Codec Configuration Guide](AUDIO_CODEC_CONFIG.md) which explains how to configure MP3/Opus/AAC encoding for CPU and GPU deployments.
 
 ### Zero-Shot Voice Cloning
 Generate audio that sounds similar as the provided [reference audio](./examples/voice_prompts/belinda.wav).
