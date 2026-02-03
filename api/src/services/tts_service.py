@@ -4,6 +4,8 @@ TTS service wrapper for Higgs Audio engine.
 
 import io
 import os
+import subprocess
+import tempfile
 import torch
 import torchaudio
 import numpy as np
@@ -33,6 +35,31 @@ OPENAI_VOICE_MAP = {
     "nova": "af_nicole",
     "shimmer": "af_sarah",
 }
+
+
+def _use_torchcodec():
+    """
+    Determine whether to use TorchCodec for audio encoding.
+    
+    Checks the AUDIO_CODEC environment variable:
+    - "torchcodec": Force use of TorchCodec
+    - "ffmpeg": Force use of FFmpeg
+    - "auto" (default): Use TorchCodec if available, else FFmpeg
+    
+    Returns:
+        bool: True if TorchCodec should be used, False for FFmpeg
+    """
+    mode = os.getenv("AUDIO_CODEC", "auto").lower()
+    if mode == "torchcodec":
+        return True
+    if mode == "ffmpeg":
+        return False
+    # auto mode: try to import torchcodec
+    try:
+        import torchcodec  # noqa
+        return True
+    except Exception:
+        return False
 
 
 class TTSService:
@@ -205,25 +232,32 @@ async def convert_audio_format(
     """
     Convert audio array to specified format.
     
+    Always operates on CPU to avoid GPU/CPU inconsistencies.
+    Uses TorchCodec if available (controlled by AUDIO_CODEC env var),
+    otherwise falls back to FFmpeg for non-WAV/FLAC formats.
+    
     Args:
         audio_array: Audio data as numpy array
         sample_rate: Sample rate in Hz
-        output_format: Target format (mp3, opus, wav, etc.)
+        output_format: Target format (mp3, opus, wav, flac, aac)
         
     Returns:
         Audio bytes in target format
     """
-    # Convert to torch tensor
+    # Convert to torch tensor and always move to CPU for encoding
     audio_tensor = torch.from_numpy(audio_array).float()
+    
+    # Ensure we're on CPU for I/O operations
+    if hasattr(audio_tensor, "detach"):
+        audio_tensor = audio_tensor.detach().cpu()
+    
     if audio_tensor.dim() == 1:
         audio_tensor = audio_tensor.unsqueeze(0)
     
     # Create in-memory buffer
     buffer = io.BytesIO()
     
-    # Save to buffer in target format
-    # Note: For MP3/OPUS, you'd need additional libraries (ffmpeg)
-    # For now, we'll use WAV as a fallback
+    # For WAV and FLAC, use torchaudio directly (works everywhere)
     if output_format in ["wav", "flac"]:
         torchaudio.save(
             buffer,
@@ -231,16 +265,63 @@ async def convert_audio_format(
             sample_rate,
             format=output_format
         )
-    else:
-        # For mp3, opus, aac, we need ffmpeg
-        # Save as WAV first, then convert
-        # This is a simplified version
+        buffer.seek(0)
+        return buffer.read()
+    
+    # For other formats (mp3, opus, aac), check codec strategy
+    if _use_torchcodec():
+        # Try using TorchCodec
+        try:
+            torchaudio.save(
+                buffer,
+                audio_tensor,
+                sample_rate,
+                format=output_format
+            )
+            buffer.seek(0)
+            return buffer.read()
+        except Exception as e:
+            # If TorchCodec fails, fall back to FFmpeg
+            pass
+    
+    # FFmpeg fallback for mp3, opus, aac
+    # Save as WAV first, then convert using FFmpeg
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as wav_file:
+        wav_path = wav_file.name
+    
+    with tempfile.NamedTemporaryFile(suffix=f".{output_format}", delete=False) as out_file:
+        out_path = out_file.name
+    
+    try:
+        # Save as WAV
         torchaudio.save(
-            buffer,
+            wav_path,
             audio_tensor,
             sample_rate,
             format="wav"
         )
-    
-    buffer.seek(0)
-    return buffer.read()
+        
+        # Convert using FFmpeg
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-i", wav_path,
+                "-y",  # Overwrite output
+                "-hide_banner",
+                "-loglevel", "error",
+                out_path
+            ],
+            capture_output=True,
+            check=True
+        )
+        
+        # Read converted file
+        with open(out_path, "rb") as f:
+            return f.read()
+            
+    finally:
+        # Clean up temporary files
+        if os.path.exists(wav_path):
+            os.unlink(wav_path)
+        if os.path.exists(out_path):
+            os.unlink(out_path)

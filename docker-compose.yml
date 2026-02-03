@@ -12,6 +12,7 @@ services:
       - AUDIO_TOKENIZER_PATH=bosonai/higgs-audio-v2-tokenizer
       - DEVICE=auto
       - LOG_LEVEL=INFO
+      - AUDIO_CODEC=auto  # auto | torchcodec | ffmpeg
     volumes:
       # Optional: Mount local cache for models
       - ~/.cache/huggingface:/root/.cache/huggingface
@@ -42,6 +43,7 @@ services:
   #     - AUDIO_TOKENIZER_PATH=bosonai/higgs-audio-v2-tokenizer
   #     - DEVICE=cpu
   #     - LOG_LEVEL=INFO
+  #     - AUDIO_CODEC=ffmpeg  # Use FFmpeg for CPU-only deployments
   #   volumes:
   #     - ~/.cache/huggingface:/root/.cache/huggingface
   #   restart: unless-stopped
