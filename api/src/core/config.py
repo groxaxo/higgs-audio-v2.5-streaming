@@ -5,10 +5,16 @@ Configuration settings for the Higgs Audio OpenAI-compatible TTS API.
 import os
 from typing import List
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings."""
+    
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=False
+    )
     
     # API metadata
     api_title: str = "Higgs Audio TTS API"
@@ -45,10 +51,6 @@ class Settings(BaseSettings):
     
     # Supported voices (can be expanded)
     default_voice: str = "af_heart"
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
 
 
 settings = Settings()

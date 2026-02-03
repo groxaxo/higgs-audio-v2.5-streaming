@@ -5,7 +5,7 @@ Based on Kokoro-FastAPI text processing strategies.
 
 import re
 from typing import Optional
-from .structures.schemas import NormalizationOptions
+from ..structures.schemas import NormalizationOptions
 
 
 class TextProcessor:
