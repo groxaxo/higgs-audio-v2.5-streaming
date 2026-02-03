@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+conda_env/
+higgs_audio_env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitmodules
+.github/
+
+# Documentation
+*.md
+!README.md
+docs/
+tech_blogs/
+
+# Test files
+test/
+tests/
+*.test.py
+test_*.py
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+.cache/
+
+# Model weights (download at runtime)
+*.pth
+*.pt
+*.bin
+*.safetensors
+models/
+checkpoints/
+
+# Examples and figures (not needed in container)
+examples/
+figures/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
