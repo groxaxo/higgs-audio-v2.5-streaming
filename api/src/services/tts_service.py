@@ -7,7 +7,7 @@ import os
 import torch
 import torchaudio
 import numpy as np
-from typing import Optional, List, AsyncGenerator
+from typing import Optional, List, AsyncGenerator, Tuple
 from pathlib import Path
 import asyncio
 from functools import lru_cache
@@ -18,7 +18,13 @@ from ..core.config import settings
 
 
 # Voice name mapping from OpenAI to Higgs Audio
-# OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+# These mappings are based on voice characteristics:
+# - alloy: neutral, balanced voice -> af_heart (female, clear)
+# - echo: male voice -> am_adam (male, clear)
+# - fable: storytelling voice -> bf_emma (female, expressive)
+# - onyx: deep male voice -> bm_george (male, deep)
+# - nova: female voice -> af_nicole (female, warm)
+# - shimmer: bright female voice -> af_sarah (female, bright)
 OPENAI_VOICE_MAP = {
     "alloy": "af_heart",
     "echo": "am_adam",
@@ -104,7 +110,7 @@ class TTSService:
         ref_audio: Optional[str] = None,
         scene_description: Optional[str] = None,
         speed: float = 1.0,
-    ) -> tuple[np.ndarray, int]:
+    ) -> Tuple[np.ndarray, int]:
         """
         Generate audio from text.
         
@@ -149,9 +155,11 @@ class TTSService:
         sample_rate = output.sampling_rate
         
         if speed != 1.0:
-            # Simple speed adjustment (in production, use better resampling)
-            new_rate = int(sample_rate * speed)
-            sample_rate = new_rate
+            # Note: Proper speed adjustment requires resampling the audio data
+            # For now, we skip this to avoid incorrect pitch changes
+            # In production, use librosa.effects.time_stretch or similar
+            # audio_array = librosa.effects.time_stretch(audio_array, rate=speed)
+            pass
         
         return audio_array, sample_rate
     

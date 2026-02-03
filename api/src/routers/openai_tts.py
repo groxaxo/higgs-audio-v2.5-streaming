@@ -69,7 +69,8 @@ async def create_speech(
             request.normalization_options
         )
         
-        logger.info(f"Generating speech for voice={request.voice}, format={request.response_format}")
+        # Log request (without full text to avoid logging sensitive data)
+        logger.info(f"Generating speech: voice={request.voice}, format={request.response_format}, text_length={len(request.input)}")
         
         # Generate audio
         audio_array, sample_rate = await tts_service.generate_audio(

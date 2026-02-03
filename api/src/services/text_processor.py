@@ -11,9 +11,9 @@ from ..structures.schemas import NormalizationOptions
 class TextProcessor:
     """Handles text sanitization and normalization for TTS."""
     
-    # URL pattern
+    # URL pattern - simplified to avoid overly-large character ranges
     URL_PATTERN = re.compile(
-        r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        r'https?://[a-zA-Z0-9$_.+!*\'(),@&-]+'
     )
     
     # Email pattern
